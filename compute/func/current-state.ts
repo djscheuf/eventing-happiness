@@ -1,18 +1,18 @@
-import { getDB } from "./get-db";
+import { Database } from "../models/db";
 
-export function currentStateOf(accountId: number){
-    const dataset = getDB();
+export function currentStateOf(accountId: number, dataset: Database){
 
     const theAccount = dataset.accounts.find(x=> x.id == accountId);
     
     const transactionsOnAccount = dataset.transactions.filter(x=> x.transmitter == accountId || x.receiver == accountId);
 
     const allCredits = transactionsOnAccount
-        .filter(WhereReceiver)
+        .filter(WhereReceiver(accountId))
         .map(ToTransactionAmount)
         .reduce(BySummation,0);
+        
     const allDebits = transactionsOnAccount
-        .filter(WhereSender)
+        .filter(WhereSender(accountId))
         .map(ToTransactionAmount)
         .reduce(BySummation,0);
 

@@ -1,31 +1,20 @@
-import { expect, test, describe, beforeEach, afterAll, vi } from 'vitest'
+import { expect, test, describe, beforeEach } from 'vitest'
 import { Account } from '../models/account';
 import { Database } from '../models/db';
 import { Transaction } from '../models/transaction';
 import { currentStateOf } from './current-state'
-import { getDB } from './get-db';
+
+
 
 describe("Current State Of Account",()=>{
-    let mockDb:Database;
-    let getTheDB;
+    let mockDb: Database;
     beforeEach(()=>{
-        mockDb={
+        mockDb = {
             accounts:[],
-            transactions: []
+            transactions:[],
         }
-        getTheDB = vi.fn(()=>{
-            return mockDb;
-        });
-        vi.mock('./get-db',()=>{
-            return {
-                getDB: getTheDB
-            };
-        });
     });
-    afterAll(()=>{
-        vi.restoreAllMocks();
-    });
-
+    
     describe('Given Some Accounts',()=>{
         let aliceAcct: Account;
         let systemAcct: Account;
@@ -48,28 +37,20 @@ describe("Current State Of Account",()=>{
             let startBal: number = 0;
             beforeEach(()=>{
                 startBal = 10;
-                transactions.push({
+                mockDb.transactions.push({
                     when:lastTransaction,
                     transmitter:0,
                     receiver:1,
                     amount: startBal,
                 });
             });
-            describe('Given Dataset',()=>{
+            describe('When get current account state for Alice',()=>{
+                let result;
                 beforeEach(()=>{
-                    mockDb.transactions = transactions;
+                        result = currentStateOf(aliceAcct.id,mockDb);
                 });
-                describe('When get current account state for Alice',()=>{
-                    let result;
-                    beforeEach(()=>{
-                         result = currentStateOf(aliceAcct.id);
-                    });
-                    test('Then get current data to evaluate',()=>{
-                        expect(getTheDB).toBeCalled();
-                   });
-                    test('Then state only shows initial value',()=>{
-                         expect(result).toBe(transactions[0].amount);
-                    });
+                test('Then state only shows initial value',()=>{
+                        expect(result).toBe(mockDb.transactions[0].amount);
                 });
             });
             describe('Given some Debits',()=>{
@@ -78,7 +59,7 @@ describe("Current State Of Account",()=>{
                     lastTransaction++;
                     let amt = 1;
                     debits +=amt;
-                    transactions.push({
+                    mockDb.transactions.push({
                         when:lastTransaction,
                         transmitter:1,
                         receiver:0,
@@ -88,25 +69,20 @@ describe("Current State Of Account",()=>{
                     lastTransaction++;
                     amt = 3;
                     debits += amt;
-                    transactions.push({
+                    mockDb.transactions.push({
                         when:lastTransaction,
                         transmitter:1,
                         receiver:0,
                         amount: amt,
                     });
                 });
-                describe('Given Dataset',()=>{
+                describe('When get current account state for Alice',()=>{
+                    let result;
                     beforeEach(()=>{
-                        mockDb.transactions = transactions;
+                        result = currentStateOf(aliceAcct.id, mockDb);
                     });
-                    describe('When get current account state for Alice',()=>{
-                        let result;
-                        beforeEach(()=>{
-                             result = currentStateOf(aliceAcct.id);
-                        });
-                        test('Then state shows current value',()=>{
-                             expect(result).toBe(startBal-debits);
-                        });
+                    test('Then state shows current value',()=>{
+                        expect(result).toBe(startBal-debits);
                     });
                 });
             });
