@@ -20,7 +20,7 @@ export function currentStateOf(account:number, stream:SystemEvent[]): number {
 
 const ForTransactions = (x: SystemEvent): boolean => x.type === "Transaction";
 
-const WhereReceiverIs = (account: number) => (x: SystemEvent): boolean => (x.body as TransactionBody).to === account;
+const WhereReceiverIs = (account: number) => (x: SystemEvent): boolean => x.body["to"] === account;
 const WhereSenderIs = (account: number) => (x: SystemEvent): boolean => (x.body as TransactionBody).from === account;
 const ToTransactionAmount = (x: SystemEvent) => (x.body as TransactionBody).amount;
 const BySum = (left: number, right: number)=> left+right;
