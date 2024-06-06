@@ -1,6 +1,7 @@
 import {beforeEach, describe, test, expect, afterEach} from 'vitest';
-import { DepositEvent, OpenAccountEvent, SystemEvent, TransactionEvent } from '../models/event';
+import { SystemEvent } from '../models/event';
 import { currentStateOf } from './current-state-event';
+import { openAccountFor, moveMoney, deposit } from '../models/event-generators';
 
 const ALICE = 1;
 const BOB =2;
@@ -18,7 +19,7 @@ describe('Current Account State from Event Stream',()=>{
             let testAccountInitBal = 19;
             beforeEach(()=>{
                 stream.push(openAccountFor(ALICE, testAccountName, testAccountInitBal));
-                stream.push(openAccountFor(BOB, "bob"));
+                stream.push(openAccountFor(BOB, "bob", 10));
             });
             describe('When get state of an Account',()=>{
                 let result;
@@ -55,7 +56,7 @@ describe('Current Account State from Event Stream',()=>{
                              result = currentStateOf(ALICE,stream);
                         });
                         test('Then Status accounts for all activity',()=>{
-                             expect(result).toBe(testAccountInitBal-moveAmt);
+                             expect(result).toBe(testAccountInitBal-moveAmt+depositAmt);
                         });
                     });
                 });
@@ -64,34 +65,3 @@ describe('Current Account State from Event Stream',()=>{
     });    
 });
 
-function openAccountFor(id: number, name: string, initialBalance: number = 10): OpenAccountEvent {
-    return {
-        type:"OpenAccount",
-        body: {
-            id,
-            name,
-            initialBalance
-        }
-    }
-}
-
-function moveMoney(from: number, to: number, amount: number): TransactionEvent {
-    return {
-        type: "Transaction",
-        body: {
-            from,
-            to,
-            amount
-        }
-    }
-}
-
-function deposit(to: number, amount: number): DepositEvent {
-    return {
-        type: "Deposit",
-        body: {
-            to,
-            amount
-        }
-    }
-}
