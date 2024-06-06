@@ -1,5 +1,5 @@
 import { Account } from "../models/account";
-import { OpenAccountBody, SystemEvent } from "../models/event";
+import { AccountBody, SystemEvent } from "../models/event";
 
 export function accountsFrom(stream: SystemEvent[]): Account[]{
     const accountActivity = stream.filter(ForAccountAffectingEvents);
@@ -8,9 +8,9 @@ export function accountsFrom(stream: SystemEvent[]): Account[]{
     accountActivity.forEach((event)=>{
         if(event.type == "OpenAccount")
             projectedAccounts.push({
-                name: (event.body as OpenAccountBody).name,
+                name: (event.body as AccountBody).name,
                 id: projectedAccounts.length+1,
-                balance: (event.body as OpenAccountBody).initialBalance
+                balance: (event.body as AccountBody).balance
             });
     });
     
