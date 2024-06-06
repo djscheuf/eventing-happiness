@@ -7,16 +7,17 @@ export type Event<T> = {
 export type EventType = 
     "OpenAccount"
     | "Transaction"
-    | "Deposit";
+    | "Deposit"
+    | "CloseBook";
 
-export type OpenAccountBody = {
+export type AccountBody = {
     name: string;
-    initialBalance: number;
+    balance: number;
     //id: UUID;
     id: number;
 }
 
-export type OpenAccountEvent = Event<OpenAccountBody>;
+export type OpenAccountEvent = Event<AccountBody>;
 
 export type TransactionBody = {
     from: number;
@@ -32,4 +33,9 @@ export type DepositBody = {
 }
 export type DepositEvent = Event<DepositBody>;
 
-export type SystemEvent = OpenAccountEvent | TransactionEvent | DepositEvent;
+export type CloseBookBody = AccountBody & {
+    closeDate: Date;
+}
+export type CloseBookEvent = Event<CloseBookBody>;
+
+export type SystemEvent = OpenAccountEvent | TransactionEvent | DepositEvent | CloseBookEvent;

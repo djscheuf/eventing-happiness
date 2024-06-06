@@ -1,7 +1,7 @@
 import {beforeEach, describe, test, expect, afterEach} from 'vitest';
 import { SystemEvent } from '../models/event';
 import { currentStateOf } from './current-state-event';
-import { openAccountFor, moveMoney, deposit } from '../models/event-generators';
+import { openAccountFor, moveMoney, deposit, closeBookOn } from '../models/event-generators';
 
 const ALICE = 1;
 const BOB =2;
@@ -57,6 +57,21 @@ describe('Current Account State from Event Stream',()=>{
                         });
                         test('Then Status accounts for all activity',()=>{
                              expect(result).toBe(testAccountInitBal-moveAmt+depositAmt);
+                        });
+                    });
+                });
+                describe('Given some previous closedBooks',()=>{
+                    const closedBalance = 42;
+                    beforeEach(()=>{
+                        stream.push(closeBookOn(ALICE,testAccountName,closedBalance));
+                    });
+                    describe('When get state of an Account',()=>{
+                        let result;
+                        beforeEach(()=>{
+                             result = currentStateOf(ALICE,stream);
+                        });
+                        test('Then Status reflects the checkpoint',()=>{
+                             expect(result).toBe(closedBalance);
                         });
                     });
                 });
